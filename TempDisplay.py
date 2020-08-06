@@ -11,9 +11,7 @@ from datetime import datetime
 import time
 from papirus import Papirus
 from papirus import PapirusImage
-import Adafruit_ADS1x15
 
-adc = Adafruit_ADS1x15.ADS1115()
 
 user = os.getuid()
 if user != 0:
@@ -23,13 +21,13 @@ if user != 0:
 WHITE = 1
 BLACK = 0
 
-FONT_FILE = '/home/pi/Downloads/Bariol-Regular&Italic/Desktop/Bariol_Regular.otf'
-FONT_BOLD = '/home/pi/Downloads/Bariol-Regular&Italic/Desktop/Bariol_Regular.otf'
+FONT_FILE = '/usr/share/fonts/truetype/freefont/FreeSansBold.ttf'
+FONT_BOLD = '/usr/share/fonts/truetype/freefont/FreeSansBold.ttf'
 TIME_FONT = '/usr/share/fonts/truetype/freefont/FreeSansBold.ttf'
 
 
-tempFont_SIZE = 70
-descriptionFont_SIZE  = 25
+tempFont_SIZE = 50
+descriptionFont_SIZE  = 10
 timeFont_Size = 15
 GAIN =1
 MAX_START = 0xffff
@@ -51,8 +49,8 @@ def tempDisplay(papirus):
    while (count < 60):
         now = datetime.today()
         time.sleep(0.5)
-        temp = getTemp(0)    
-        loadImage(papirus, temp)
+
+        loadImage(papirus, 50)
         if now.second < previous_second:
            papirus.update()    # full update every minute
             
@@ -69,23 +67,15 @@ def tempDisplay(papirus):
 def loadImage(papirus,temp):
        image = Image.new('1', papirus.size, WHITE) 
        width, height = image.size
-       img = Image.open('/home/pi/Mariah/image/coldDisp.bmp', 'r')
+       img = Image.open('/home/pi/TempGauage/image/coldDisp.bmp', 'r')
        draw = ImageDraw.Draw(img)
        draw.text((57,30), "{0}\xb0".format(temp), font=tempFont)
-       draw.text((125,0),"Air",font=descriptionFont)
+       draw.text((90,0),"Mode:",font=descriptionFont)
+       draw.text((125,0),"cool",font=descriptionFont)
+    
        bw = img.convert("1", dither=Image.FLOYDSTEINBERG)
        papirus.display(bw)
 
-def getTemp(channel):
-        GAIN = 2
-        adc.start_adc(0, gain=GAIN)
-        value= adc.read_adc(channel, gain=GAIN)
-        compTemp =0
-        rawValue = adc.get_last_result()
-        compTemp = rawValue >> 5
-        value = compTemp & 0b00000000001
-        convertedTemp = compTemp * .125 * 1.8 +32
-        return int(convertedTemp)
  
 # main
 if "__main__" == __name__:
